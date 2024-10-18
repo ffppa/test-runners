@@ -5,7 +5,7 @@ on:
 
 jobs:
   echo_message:
-    runs-on: X64
+    runs-on: self-hosted
 
     steps:
     - name: Checkout repository
@@ -13,3 +13,12 @@ jobs:
 
     - name: Echo a message
       run: echo "Hello, this is a message from your self-hosted runner!"
+
+    - name: Setup Go environment
+      uses: actions/setup-go@v5.0.2
+
+    - name: Google Actions Testing
+      # You may pin to the exact commit or the version.
+      # uses: google-github-actions/test-action@db135563f2ce86bdbfd8ea2998c4de76213a476c
+      uses: google-github-actions/test-action@v1.0.1
+          
