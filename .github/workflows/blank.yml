@@ -1,7 +1,8 @@
 name: Manual Dispatch Workflow
-
+# test
 on:
   workflow_dispatch:
+  merge_group:
 
 jobs:
   echo_message:
