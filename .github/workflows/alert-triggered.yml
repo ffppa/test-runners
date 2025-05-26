@@ -1,0 +1,13 @@
+name: Triggered by Azure Alert
+
+on:
+  repository_dispatch:
+    types: [azure-alert]
+
+jobs:
+  alertJob:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Alert Azure!
+        run: echo "Hello, world!"
