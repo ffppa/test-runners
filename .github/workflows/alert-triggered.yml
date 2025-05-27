@@ -28,7 +28,7 @@ on:
 
 jobs:
   alertJob:
-    runs-on: "composite"
+    runs-on: ubuntu-latest
     steps:
       - name: Alert Azure!
         run: echo "Hello, world!"
