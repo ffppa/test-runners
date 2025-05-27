@@ -38,10 +38,9 @@ jobs:
         run: echo "Hello, world!"
 
       - name: Login
-        uses: azure/login@89d153571fe9a34ed70fcf9f1d95ab8debea7a73
+        uses: azure/login@v2
         with:
           client-id: ${{ inputs.CLIENT_ID }}
-
           tenant-id: ${{ inputs.TENANT_ID }}
           subscription-id: ${{ inputs.SUBSCRIPTION_ID }}
 
