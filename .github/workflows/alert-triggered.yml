@@ -5,18 +5,6 @@ on:
     types: [azure-alert]
   workflow_dispatch:
     inputs:
-      CLIENT_ID:
-        description: 'Azure Client ID'
-        required: true
-        type: string
-      TENANT_ID:
-        description: 'Azure Tenant ID'
-        required: true
-        type: string
-      SUBSCRIPTION_ID:
-        description: 'Azure Subscription ID'
-        required: true
-        type: string
       resource_group:
         description: 'Resource Group for AKS'
         required: true
@@ -40,9 +28,9 @@ jobs:
       - name: Login
         uses: azure/login@v2
         with:
-          client-id: ${{ inputs.CLIENT_ID }}
-          tenant-id: ${{ inputs.TENANT_ID }}
-          subscription-id: ${{ inputs.SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
       - name: Get K8s context
         uses: azure/aks-set-context@4edaee69f820359371ee8bc85189ac03a21d3a58 # v3
