@@ -20,6 +20,7 @@ permissions:
 
 jobs:
   alertJob:
+    environment: test
     runs-on: ubuntu-latest
     steps:
       - name: Alert Azure!
