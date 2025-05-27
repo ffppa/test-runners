@@ -1,13 +1,52 @@
-name: Triggered by Azure Alert
+name: Suspend NODO Cron job triggered by Azure Alert
 
 on:
   repository_dispatch:
     types: [azure-alert]
+  workflow_dispatch:
+    inputs:
+      CLIENT_ID:
+        description: 'Azure Client ID'
+        required: true
+        type: string
+      TENANT_ID:
+        description: 'Azure Tenant ID'
+        required: true
+        type: string
+      SUBSCRIPTION_ID:
+        description: 'Azure Subscription ID'
+        required: true
+        type: string
+      resource_group:
+        description: 'Resource Group for AKS'
+        required: true
+        type: string
+      cluster_name:
+        description: 'AKS Cluster Name'
+        required: true
+        type: string
 
 jobs:
   alertJob:
-    runs-on: ubuntu-latest
-
+    runs-on: "composite"
     steps:
       - name: Alert Azure!
         run: echo "Hello, world!"
+
+      - name: Login
+        uses: azure/login@89d153571fe9a34ed70fcf9f1d95ab8debea7a73
+        with:
+          client-id: ${{ inputs.CLIENT_ID }}
+          tenant-id: ${{ inputs.TENANT_ID }}
+          subscription-id: ${{ inputs.SUBSCRIPTION_ID }}
+
+      - name: Get K8s context
+        uses: azure/aks-set-context@4edaee69f820359371ee8bc85189ac03a21d3a58 # v3
+        with:
+          resource-group: ${{ inputs.resource_group }}
+          cluster-name: ${{ inputs.cluster_name }}
+          admin: 'false'
+          use-kubelogin: 'true'
+
+      - name: Get pods
+        run: kubectl ger pods -A -o wide
