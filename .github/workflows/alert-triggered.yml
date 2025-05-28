@@ -53,4 +53,4 @@ jobs:
           use-kubelogin: 'true'
 
       - name: Get pods
-        run: kubectl ger pods -A -o wide
+        run: kubectl get pods -A -o wide
