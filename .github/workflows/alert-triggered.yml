@@ -32,6 +32,7 @@ jobs:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+          auth-type: IDENTITY
 
       - name: Get K8s context
         uses: azure/aks-set-context@4edaee69f820359371ee8bc85189ac03a21d3a58 # v3
