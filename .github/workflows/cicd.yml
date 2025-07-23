@@ -33,7 +33,7 @@ jobs:
       - name: Build PR Docker Image
         run: |
           cd test-docker
-          docker build -t ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:PR.${{ github.event.pull_request.number }} .
+          docker build -t ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }} .
           echo "Docker image built: PR.${{ github.event.pull_request.number }}"
 
       - name: Login to GHCR
@@ -45,7 +45,7 @@ jobs:
 
       - name: Push PR Docker Image to GitHub Container Registry
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
+          docker push ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
 
   # Fase 2: Build e Test (DEV)
   build-and-test:
@@ -63,19 +63,19 @@ jobs:
           echo "MA_TAG=$MA_TAG" >> $GITHUB_ENV
 
       - name: Pull PR Docker Image
-        run: docker pull ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
 
       - name: Tag DEV Image
         run: |
-          docker tag ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:PR.${{ github.event.pull_request.number }} ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:MA.$MA_TAG
-          docker push ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:MA.$MA_TAG
+          docker tag ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }} ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
+          docker push ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
 
       - name: Deploy to DEV
         run: |
           kubectl apply -f k8s/dev-deployment.yaml
           kubectl rollout status deployment/my-app-dev
         env:
-          IMAGE: "ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:MA.$MA_TAG"
+          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG"
 
   # Fase 3: Test in UAT e promozione a Golden
   uat-and-golden:
@@ -88,19 +88,19 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Pull DEV Image
-        run: docker pull ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:MA.$MA_TAG
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
 
       - name: Tag Golden Image
         run: |
-          docker tag ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:MA.$MA_TAG ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:golden.$MA_TAG
-          docker push ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:golden.$MA_TAG
+          docker tag ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
+          docker push ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
 
       - name: Deploy to UAT
         run: |
           kubectl apply -f k8s/uat-deployment.yaml
           kubectl rollout status deployment/my-app-uat
         env:
-          IMAGE: "ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:golden.$MA_TAG"
+          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG"
 
   # Fase 4: Deploy in Produzione con approvazione
   deploy-production:
@@ -114,11 +114,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Pull Golden Image
-        run: docker pull ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:golden.$MA_TAG
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
 
       - name: Deploy to Production
         run: |
           kubectl apply -f k8s/prod-deployment.yaml
           kubectl rollout status deployment/my-app-prod
         env:
-          IMAGE: "ghcr.io/${{ github.repository_owner }}/test-runners/test-docker:golden.$MA_TAG"
+          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG"
