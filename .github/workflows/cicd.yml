@@ -24,7 +24,6 @@ jobs:
     name: Build and Test for DEV
     runs-on: ubuntu-latest
     environment: test
-    needs: pr-validation
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
