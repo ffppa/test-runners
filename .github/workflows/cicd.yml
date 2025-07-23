@@ -67,7 +67,7 @@ jobs:
     name: Test in UAT and Promote Golden Image
     runs-on: ubuntu-latest
     environment: test
-    needs: build-and-test
+    needs: ma-build-and-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
