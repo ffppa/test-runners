@@ -2,9 +2,6 @@ name: CI/CD Pipeline - Full Flow with Approval and GitHub Package
 
 on:
   # Eventi che triggerano la pipeline
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
@@ -19,33 +16,11 @@ permissions:
   id-token: write
   contents: read
   packages: write
+  pull-requests: read
 
 jobs:
-  # Job di validazione per Pull Request (PR Validation)
-  pr-validation:
-    name: Validate Pull Request
-    runs-on: ubuntu-latest
-    environment: test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build PR Docker Image
-        run: |
-          cd test-docker
-          docker build -t ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }} .
-          echo "Docker image built: PR.${{ github.event.pull_request.number }}"
-
-      - name: Login to GitHub Container Registry
-        run: |
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      - name: Push PR Docker Image to GitHub Container Registry
-        run: |
-          docker push ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
-
   # Fase 2: Build e Test (DEV)
-  build-and-test:
+  ma-build-and-test:
     name: Build and Test for DEV
     runs-on: ubuntu-latest
     environment: test
@@ -53,6 +28,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Get the Last Merged PR Number
+        id: last_pr
+        run: |
+          PR_NUMBER=$(gh api graphql -F owner='${{ github.repository_owner }}' -F name='${{ github.event.repository.name }}' -f query='
+            query ($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                pullRequests(last: 1, states: MERGED, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                  nodes {
+                    number
+                  }
+                }
+              }
+            }' --jq '.data.repository.pullRequests.nodes[0].number')
+          echo "Last merged PR number: $PR_NUMBER"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_ENV
 
       - name: Define MA Tag
         run: |
@@ -63,20 +54,14 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Pull PR Docker Image
-        run: docker pull ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
+      - name: Pull Docker Image for Last Merged PR
+        run: |
+          docker pull ghcr.io/ffppa/test-runners/test-docker:PR.${{ env.pr_number }}
 
       - name: Tag DEV Image
         run: |
-          docker tag ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }} ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
-          docker push ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
-
-      - name: Deploy to DEV
-        run: |
-          kubectl apply -f k8s/dev-deployment.yaml
-          kubectl rollout status deployment/my-app-dev
-        env:
-          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG"
+          docker tag ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }} ghcr.io/ffppa/test-runners/test-docker:$MA_TAG
+          docker push ghcr.io/ffppa/test-runners/test-docker:$MA_TAG
 
   # Fase 3: Test in UAT e promozione a Golden
   uat-and-golden:
@@ -93,11 +78,11 @@ jobs:
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Pull DEV Image
-        run: docker pull ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:$MA_TAG
 
       - name: Tag Golden Image
         run: |
-          docker tag ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
+          docker tag ghcr.io/ffppa/test-runners/test-docker:$MA_TAG ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
           docker push ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
 
       - name: Deploy to UAT
