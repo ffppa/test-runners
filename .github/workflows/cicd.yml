@@ -14,9 +14,11 @@ on:
         description: 'Environment to deploy'
         default: 'production'
         required: true
+
 permissions:
   id-token: write
   contents: read
+  packages: read
 
 jobs:
   # Job di validazione per Pull Request (PR Validation)
