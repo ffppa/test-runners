@@ -36,12 +36,9 @@ jobs:
           docker build -t ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }} .
           echo "Docker image built: PR.${{ github.event.pull_request.number }}"
 
-      - name: Login to GHCR
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Push PR Docker Image to GitHub Container Registry
         run: |
@@ -61,6 +58,10 @@ jobs:
         run: |
           MA_TAG="MA.${{ github.run_number }}.$(date +%Y%m%d)"
           echo "MA_TAG=$MA_TAG" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Pull PR Docker Image
         run: docker pull ghcr.io/ffppa/test-runners/test-docker:PR.${{ github.event.pull_request.number }}
@@ -87,6 +88,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
       - name: Pull DEV Image
         run: docker pull ghcr.io/ffppa/test-runners/test-docker:MA.$MA_TAG
 
@@ -112,6 +117,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Pull Golden Image
         run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.$MA_TAG
