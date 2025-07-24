@@ -36,7 +36,7 @@ func main() {
 
 		// Prepare a mock response
 		response := Response{
-			Message: "Example of a mock API!",
+			Message: "Example of a Mock API!",
 			Status:  "success",
 		}
 
