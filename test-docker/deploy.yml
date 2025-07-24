@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockapi-deployment
+  labels:
+    app: mockapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mockapi
+  template:
+    metadata:
+      labels:
+        app: mockapi
+    spec:
+      containers:
+        - name: mockapi
+          image: ghcr.io/ffppa/test-runners/test-docker:DEV.latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mockapi-service
+spec:
+  selector:
+    app: mockapi
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
