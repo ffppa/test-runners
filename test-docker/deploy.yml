@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mockapi-deployment
+  name: mockapi-deployment-dev
   labels:
-    app: mockapi
+    app: mockapi-dev
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: mockapi
+      app: mockapi-dev
   template:
     metadata:
       labels:
-        app: mockapi
+        app: mockapi-dev
     spec:
       containers:
         - name: mockapi
@@ -31,12 +31,153 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mockapi-service
+  name: mockapi-service-dev
+  labels:
+    app: mockapi-dev
 spec:
   selector:
-    app: mockapi
+    app: mockapi-dev
   ports:
     - protocol: TCP
-      port: 8080
+      port: 80
       targetPort: 8080
-  type: LoadBalancer
+  type: ClusterIP
+---
+# =========
+# UAT
+# =========
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockapi-deployment-uat
+  labels:
+    app: mockapi-uat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mockapi-uat
+  template:
+    metadata:
+      labels:
+        app: mockapi-uat
+    spec:
+      containers:
+        - name: mockapi
+          image: ghcr.io/ffppa/test-runners/test-docker:UAT.latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mockapi-service-uat
+  labels:
+    app: mockapi-uat
+spec:
+  selector:
+    app: mockapi-uat
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+# =========
+# PROD
+# =========
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockapi-deployment-prod
+  labels:
+    app: mockapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mockapi-prod
+  template:
+    metadata:
+      labels:
+        app: mockapi-prod
+    spec:
+      containers:
+        - name: mockapi-prod
+          image: ghcr.io/ffppa/test-runners/test-docker:PROD.latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mockapi-service-prod
+  labels:
+    app: mockapi-prod
+spec:
+  selector:
+    app: mockapi-prod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+# =========
+# Ingress DEV, UAT e PROD
+# =========
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mockapi-ingress
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: localhost
+      http:
+        paths:
+          # Produzione
+          - path: /prod
+            pathType: Prefix
+            backend:
+              service:
+                name: mockapi-service-prod
+                port:
+                  number: 8080
+
+          # UAT
+          - path: /uat
+            pathType: Prefix
+            backend:
+              service:
+                name: mockapi-service-uat
+                port:
+                  number: 8080
+
+          # Sviluppo (Dev)
+          - path: /dev
+            pathType: Prefix
+            backend:
+              service:
+                name: mockapi-service-dev
+                port:
+                  number: 8080

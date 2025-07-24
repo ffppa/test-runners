@@ -22,7 +22,7 @@ func main() {
 	// Print the startup banner
 	printBanner()
 
-	http.HandleFunc("/mock", func(w http.ResponseWriter, r *http.Request) {
+  http.Handle("/mock", http.StripPrefix("/mock", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set the content type to JSON
 		w.Header().Set("Content-Type", "application/json")
 
@@ -96,7 +96,7 @@ func logRequest(r *http.Request, token string) {
 
 	// Fancy log output
 	fmt.Printf(`
-====================================================
+===================================================
 🚀 NEW REQUEST RECEIVED
 ====================================================
 📅 TIMESTAMP: %s
