@@ -23,7 +23,7 @@ jobs:
 
       - name: Define Tags
         run: |
-          IMAGE_TAG="ma.${{ github.run_number }}.$(date +%Y%m%d)"
+          IMAGE_TAG="DEV.${{ github.run_number }}.$(date +%Y%m%d)"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "Defined tags: $IMAGE_TAG, latest"
 
@@ -31,7 +31,7 @@ jobs:
         run: |
           cd test-docker
           docker build -t ghcr.io/ffppa/test-runners/test-docker:${{ env.IMAGE_TAG }} \
-                       -t ghcr.io/ffppa/test-runners/test-docker:MA.latest .
+                       -t ghcr.io/ffppa/test-runners/test-docker:DEV.latest .
 
       - name: Login to GitHub Container Registry
         run: |
@@ -40,4 +40,4 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ghcr.io/ffppa/test-runners/test-docker:${{ env.IMAGE_TAG }}
-          docker push ghcr.io/ffppa/test-runners/test-docker:MA.latest
+          docker push ghcr.io/ffppa/test-runners/test-docker:DEV.latest
