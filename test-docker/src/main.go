@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 // Response structure for mock response data
@@ -22,6 +23,9 @@ func main() {
 	printBanner()
 
 	http.HandleFunc("/mock", func(w http.ResponseWriter, r *http.Request) {
+		// Log the request details in a fancy style
+		logRequest(r)
+
 		// Set the content type to JSON
 		w.Header().Set("Content-Type", "application/json")
 
@@ -56,12 +60,18 @@ func main() {
 // Function to print a startup banner
 func printBanner() {
 	fmt.Println(`
-==========================================
-         MOCK API SERVER STARTED
-==========================================
+====================================================
+███╗   ███╗ ██████╗  ██████╗██╗  ██╗     █████╗ ██████╗ 
+████╗ ████║██╔═══██╗██╔════╝██║  ██║    ██╔══██╗██╔══██╗
+██╔████╔██║██║   ██║██║     ███████║    ███████║██████╔╝
+██║╚██╔╝██║██║   ██║██║     ██╔══██║    ██╔══██║██╔═══╝ 
+██║ ╚═╝ ██║╚██████╔╝╚██████╗██║  ██║    ██║  ██║██║     
+╚═╝     ╚═╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚═╝     
+====================================================
+         MOCK API SERVER - READY TO SERVE
          Access the API at:
       -> http://localhost:8080/mock
-==========================================
+====================================================
 	`)
 }
 
@@ -75,4 +85,24 @@ func generateRandomToken(length int) (string, error) {
 
 	// Convert the byte slice to a hexadecimal string
 	return hex.EncodeToString(bytes), nil
+}
+
+// Function to log incoming requests in a "mainframe" style
+func logRequest(r *http.Request) {
+	clientIP := r.RemoteAddr // Get the client IP address
+	method := r.Method       // Get the HTTP method
+	url := r.URL.String()    // Get the requested URL
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+
+	// Fancy log output
+	fmt.Printf(`
+====================================================
+🚀 NEW REQUEST RECEIVED
+====================================================
+📅 TIMESTAMP: %s
+🌐 CLIENT IP: %s
+🔍 REQUESTED URL: %s
+🔧 METHOD: %s
+====================================================
+`, timestamp, clientIP, url, method)
 }
