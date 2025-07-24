@@ -76,7 +76,8 @@ jobs:
         run: |
           docker tag ghcr.io/ffppa/test-runners/test-docker:MA.latest ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.$IMAGE_TAG }}
           docker tag ghcr.io/ffppa/test-runners/test-docker:MA.latest ghcr.io/ffppa/test-runners/test-docker:golden.latest
-          docker push ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.$IMAGE_TAG }} ghcr.io/ffppa/test-runners/test-docker:golden.latest
+          docker push ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.$IMAGE_TAG }} 
+          docker push ghcr.io/ffppa/test-runners/test-docker:golden.latest
 
   # Fase 4: Deploy in Produzione con approvazione
   deploy-production:
