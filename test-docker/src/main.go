@@ -47,7 +47,7 @@ func main() {
 		if err := json.NewEncoder(w).Encode(response); err != nil {
 			http.Error(w, "Error generating JSON response", http.StatusInternalServerError)
 		}
-	})
+  })))
 
 	// Start the server on port 8080
 	port := "8080"
