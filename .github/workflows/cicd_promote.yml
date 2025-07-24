@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - MA Flow with Approval and GitHub Package
+name: CI/CD Pipeline - PROMOTE GOLDEN Image Flow
 
 on:
   workflow_dispatch:
