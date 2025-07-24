@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   # Fase 3: Test in UAT e promozione a Golden
-  uat-and-golden:
+  uat-and-tags:
     name: Test in UAT and Promote Golden Image
     runs-on: ubuntu-latest
     environment: prod
@@ -34,30 +34,30 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Pull Latest Docker Image by Tag
+      - name: Pull Latest DEV Docker Image by Tag
         run: |
-          docker pull ghcr.io/ffppa/test-runners/test-docker:MA.latest
+          docker pull ghcr.io/ffppa/test-runners/test-docker:DEV.latest
 
-      - name: Tag Golden Image
+      - name: Tag UAT Image
         run: |
-          docker tag ghcr.io/ffppa/test-runners/test-docker:MA.latest ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.IMAGE_TAG }}
-          docker tag ghcr.io/ffppa/test-runners/test-docker:MA.latest ghcr.io/ffppa/test-runners/test-docker:golden.latest
-          docker push ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.IMAGE_TAG }}
-          docker push ghcr.io/ffppa/test-runners/test-docker:golden.latest
+          docker tag ghcr.io/ffppa/test-runners/test-docker:DEV.latest ghcr.io/ffppa/test-runners/test-docker:UAT.${{ env.IMAGE_TAG }}
+          docker tag ghcr.io/ffppa/test-runners/test-docker:DEV.latest ghcr.io/ffppa/test-runners/test-docker:UAT.latest
+          docker push ghcr.io/ffppa/test-runners/test-docker:UAT.${{ env.IMAGE_TAG }}
+          docker push ghcr.io/ffppa/test-runners/test-docker:UAT.latest
 
   # Fase 4: Deploy in Produzione con approvazione
-  deploy-production:
+  prod-deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
     environment: prod
-    needs: uat-and-golden
+    needs: uat-and-tags
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Define Tags
         run: |
-          IMAGE_TAG="golden.${{ github.run_number }}.$(date +%Y%m%d)"
+          IMAGE_TAG="PROD.${{ github.run_number }}.$(date +%Y%m%d)"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "Defined tags: $IMAGE_TAG, latest"
 
@@ -65,11 +65,17 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Pull Golden Image
-        run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.latest
+      - name: Pull UAT Image
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:UAT.latest
 
+      - name: Tag PROD Image
+        run: |
+          docker tag ghcr.io/ffppa/test-runners/test-docker:UAT.latest ghcr.io/ffppa/test-runners/test-docker:PROD.${{ env.IMAGE_TAG }}
+          docker tag ghcr.io/ffppa/test-runners/test-docker:UAT.latest ghcr.io/ffppa/test-runners/test-docker:PROD.latest
+          docker push ghcr.io/ffppa/test-runners/test-docker:PROD.${{ env.IMAGE_TAG }}
+          docker push ghcr.io/ffppa/test-runners/test-docker:PROD.latest
       - name: Deploy to Production
         run: |
           echo "SI va in prod!!! :: ${{ env.IMAGE_TAG }}"
         env:
-          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.IMAGE_TAG }}"
+          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:PROD.${{ env.IMAGE_TAG }}"
