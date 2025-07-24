@@ -1,18 +1,16 @@
-FROM ubuntu:latest
+FROM golang:1.20-alpine
 
-LABEL version="1.6"
+LABEL version="2.0"
 LABEL description="Dockerfile di test per pipeline CI/CD."
 
-RUN apt-get update && apt-get install -y \
-  curl \
-  wget \
-  vim \
-  && apt-get clean
+# Copy the Go file into the Docker container
+COPY src/main.go .
 
-WORKDIR /app
+# Compile the Go application
+RUN go build -o app main.go
 
-COPY test_script.sh /app/test_script.sh
+# Expose port 8080
+EXPOSE 8080
 
-RUN chmod +x /app/test_script.sh
-
-ENTRYPOINT ["/app/test_script.sh"]
+# Run the application
+CMD ["./app"]
