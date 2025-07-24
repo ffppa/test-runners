@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-LABEL version="1.4"
+LABEL version="1.5"
 LABEL description="Dockerfile di test per pipeline CI/CD."
 
 RUN apt-get update && apt-get install -y \
