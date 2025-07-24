@@ -59,9 +59,9 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-
       - name: Pull Golden Image
-        run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.latest"
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.latest
+
       - name: Deploy to Production
         run: |
           echo "SI va in prod!!! :: ${{ env.IMAGE }}"
