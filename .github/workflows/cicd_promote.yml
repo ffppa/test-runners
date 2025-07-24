@@ -1,10 +1,12 @@
 name: CI/CD Pipeline - MA Flow with Approval and GitHub Package
 
 on:
-  # Eventi che triggerano la pipeline
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        default: 'production'
+        required: true
 
 permissions:
   id-token: write
@@ -13,41 +15,11 @@ permissions:
   pull-requests: read
 
 jobs:
-  build-main-image:
-    name: Build Docker Image for Main
-    runs-on: ubuntu-latest
-    environment: test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Define Tags
-        run: |
-          IMAGE_TAG="ma.${{ github.run_number }}.$(date +%Y%m%d)"
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "Defined tags: $IMAGE_TAG, latest"
-
-      - name: Build Docker Image
-        run: |
-          cd test-docker
-          docker build -t ghcr.io/ffppa/test-runners/test-docker:${{ env.IMAGE_TAG }} \
-                       -t ghcr.io/ffppa/test-runners/test-docker:MA.latest .
-
-      - name: Login to GitHub Container Registry
-        run: |
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      - name: Push Docker Image
-        run: |
-          docker push ghcr.io/ffppa/test-runners/test-docker:${{ env.IMAGE_TAG }}
-          docker push ghcr.io/ffppa/test-runners/test-docker:MA.latest
-
   # Fase 3: Test in UAT e promozione a Golden
   uat-and-golden:
     name: Test in UAT and Promote Golden Image
     runs-on: ubuntu-latest
     environment: prod
-    needs: build-main-image
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -79,7 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     needs: uat-and-golden
-    if: "github.inputs.environment == 'production'"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
