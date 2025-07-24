@@ -22,6 +22,7 @@ jobs:
   build-main-image:
     name: Build Docker Image for Main
     runs-on: ubuntu-latest
+    environment: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
