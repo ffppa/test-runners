@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Full Flow with Approval and GitHub Package
+name: CI/CD Pipeline - MA Flow with Approval and GitHub Package
 
 on:
   # Eventi che triggerano la pipeline
