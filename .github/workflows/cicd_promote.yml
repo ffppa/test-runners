@@ -55,6 +55,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Define Tags
+        run: |
+          IMAGE_TAG="ma.${{ github.run_number }}.$(date +%Y%m%d)"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Defined tags: $IMAGE_TAG, latest"
+
       - name: Login to GitHub Container Registry
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
@@ -64,6 +70,6 @@ jobs:
 
       - name: Deploy to Production
         run: |
-          echo "SI va in prod!!! :: ${{ env.IMAGE }}"
+          echo "SI va in prod!!! :: ${{ env.IMAGE_TAG }}"
         env:
-          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.latest_tag }}"
+          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.IMAGE_TAG }}"
