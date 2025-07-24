@@ -52,7 +52,7 @@ jobs:
   uat-and-golden:
     name: Test in UAT and Promote Golden Image
     runs-on: ubuntu-latest
-    environment: test
+    environment: prod
     needs: build-main-image
     steps:
       - name: Checkout code
@@ -83,7 +83,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    environment: test
+    environment: prod
     needs: uat-and-golden
     if: github.event.inputs.approve_prod == 'yes'
     steps:
