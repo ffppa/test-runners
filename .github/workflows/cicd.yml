@@ -27,16 +27,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Define MAIN Tag
+      - name: Define Tags
         run: |
-          MAIN_TAG="main.${{ github.run_number }}.$(date +%Y%m%d)"
-          echo "MAIN_TAG=$MAIN_TAG" >> $GITHUB_ENV
-          echo "Docker image tag: $MAIN_TAG"
+          IMAGE_TAG="ma.${{ github.run_number }}.$(date +%Y%m%d)"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Defined tags: $IMAGE_TAG, latest"
 
       - name: Build Docker Image
         run: |
           cd test-docker
-          docker build -t ghcr.io/ffppa/test-runners/test-docker:${{ env.MAIN_TAG }} .
+          docker build -t ghcr.io/ffppa/test-runners/test-docker:${{ env.IMAGE_TAG }} \
+                       -t ghcr.io/ffppa/test-runners/test-docker:MA.latest .
 
       - name: Login to GitHub Container Registry
         run: |
@@ -44,8 +45,8 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          docker push ghcr.io/ffppa/test-runners/test-docker:${{ env.MAIN_TAG }}
-          echo "Docker image pushed: ghcr.io/ffppa/test-runners/test-docker:${{ env.MAIN_TAG }}"
+          docker push ghcr.io/ffppa/test-runners/test-docker:${{ env.IMAGE_TAG }}
+          docker push ghcr.io/ffppa/test-runners/test-docker:MA.latest
 
   # Fase 3: Test in UAT e promozione a Golden
   uat-and-golden:
@@ -57,34 +58,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Define Tags
+        run: |
+          IMAGE_TAG="ma.${{ github.run_number }}.$(date +%Y%m%d)"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Defined tags: $IMAGE_TAG, latest"
+
       - name: Login to GitHub Container Registry
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Get Latest Tag from GitHub Container Registry
-        id: get-tag
-        run: |
-          LATEST_TAG=$(gh api -H "Accept: application/vnd.github.v3+json" /user/packages/container/test-runners/versions \
-            | jq -r 'map(select(.metadata.container.tags[] | contains("main"))) | first | .metadata.container.tags[] | select(contains("main"))')
-          echo "Latest tag: $LATEST_TAG"
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
-
       - name: Pull Latest Docker Image by Tag
         run: |
-          docker pull ghcr.io/ffppa/test-runners/test-docker:${{ env.latest_tag }}
-
+          docker pull ghcr.io/ffppa/test-runners/test-docker:MA.latest
 
       - name: Tag Golden Image
         run: |
-          docker tag ghcr.io/ffppa/test-runners/test-docker:${{ env.latest_tag }} ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.latest_tag }}
-          docker push ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.latest_tag }}
-
-      - name: Deploy to UAT
-        run: |
-          kubectl apply -f k8s/uat-deployment.yaml
-          kubectl rollout status deployment/my-app-uat
-        env:
-          IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.latest_tag }}"
+          docker tag ghcr.io/ffppa/test-runners/test-docker:MA.latest ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.$IMAGE_TAG }}
+          docker tag ghcr.io/ffppa/test-runners/test-docker:MA.latest ghcr.io/ffppa/test-runners/test-docker:golden.latest
+          docker push ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.$IMAGE_TAG }} ghcr.io/ffppa/test-runners/test-docker:golden.latest
 
   # Fase 4: Deploy in Produzione con approvazione
   deploy-production:
@@ -101,19 +93,11 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Get Latest Tag from GitHub Container Registry
-        id: get-tag
-        run: |
-          LATEST_TAG=$(gh api -H "Accept: application/vnd.github.v3+json" /user/packages/container/test-runners/versions \
-            | jq -r 'map(select(.metadata.container.tags[] | contains("golden"))) | first | .metadata.container.tags[] | select(contains("golden"))')
-          echo "Latest tag: $LATEST_TAG"
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: Pull Golden Image
-        run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.latest_tag }}"
+        run: docker pull ghcr.io/ffppa/test-runners/test-docker:golden.latest"
       - name: Deploy to Production
         run: |
-          kubectl apply -f k8s/prod-deployment.yaml
-          kubectl rollout status deployment/my-app-prod
+          echo "SI va in prod!!! :: ${{ env.IMAGE }}"
         env:
           IMAGE: "ghcr.io/ffppa/test-runners/test-docker:golden.${{ env.latest_tag }}"
