@@ -23,9 +23,6 @@ func main() {
 	printBanner()
 
 	http.HandleFunc("/mock", func(w http.ResponseWriter, r *http.Request) {
-		// Log the request details in a fancy style
-		logRequest(r)
-
 		// Set the content type to JSON
 		w.Header().Set("Content-Type", "application/json")
 
@@ -42,6 +39,9 @@ func main() {
 			Status:  "success",
 			Token:   token,
 		}
+
+    // Log the request details in a fancy style
+		logRequest(r, token)
 
 		// Encode the response to JSON and write it to the ResponseWriter
 		if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -88,7 +88,7 @@ func generateRandomToken(length int) (string, error) {
 }
 
 // Function to log incoming requests in a "mainframe" style
-func logRequest(r *http.Request) {
+func logRequest(r *http.Request, token string) {
 	clientIP := r.RemoteAddr // Get the client IP address
 	method := r.Method       // Get the HTTP method
 	url := r.URL.String()    // Get the requested URL
@@ -103,6 +103,7 @@ func logRequest(r *http.Request) {
 🌐 CLIENT IP: %s
 🔍 REQUESTED URL: %s
 🔧 METHOD: %s
+🔐 TOKEN: %s
 ====================================================
-`, timestamp, clientIP, url, method)
+`, timestamp, clientIP, url, method, token)
 }
