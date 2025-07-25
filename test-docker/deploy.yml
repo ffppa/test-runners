@@ -148,36 +148,37 @@ metadata:
   name: mockapi-ingress
   namespace: default
   annotations:
-    traefik.ingress.kubernetes.io/rewrite-target: /
+    traefik.ingress.kubernetes.io/rewrite-target: /mock
 spec:
   ingressClassName: traefik
   rules:
-    - host: localhost
+    - host: prod.localhost
       http:
         paths:
-          # Produzione
-          - path: /prod
+          - path: /mock
             pathType: Prefix
             backend:
               service:
                 name: mockapi-service-prod
                 port:
-                  number: 8080
-
-          # UAT
-          - path: /uat
+                  number: 80
+    - host: uat.localhost
+      http:
+        paths:
+          - path: /mock
             pathType: Prefix
             backend:
               service:
                 name: mockapi-service-uat
                 port:
-                  number: 8080
-
-          # Sviluppo (Dev)
-          - path: /dev
+                  number: 80
+    - host: dev.localhost
+      http:
+        paths:
+          - path: /mock
             pathType: Prefix
             backend:
               service:
                 name: mockapi-service-dev
                 port:
-                  number: 8080
+                  number: 80
