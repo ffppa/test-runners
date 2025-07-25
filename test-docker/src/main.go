@@ -22,7 +22,7 @@ func main() {
 	// Print the startup banner
 	printBanner()
 
-	http.HandleFunc("/mock", func(w http.ResponseWriter, r *http.Request) {
+  http.Handle("/mock", http.StripPrefix("/mock", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set the content type to JSON
 		w.Header().Set("Content-Type", "application/json")
 
@@ -47,7 +47,7 @@ func main() {
 		if err := json.NewEncoder(w).Encode(response); err != nil {
 			http.Error(w, "Error generating JSON response", http.StatusInternalServerError)
 		}
-	})
+  })))
 
 	// Start the server on port 8080
 	port := "8080"
@@ -96,7 +96,7 @@ func logRequest(r *http.Request, token string) {
 
 	// Fancy log output
 	fmt.Printf(`
-====================================================
+===================================================
 🚀 NEW REQUEST RECEIVED
 ====================================================
 📅 TIMESTAMP: %s
