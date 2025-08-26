@@ -1,0 +1,31 @@
+name: Call OctoPus Workflow
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Specify promotion target (promote-uat or promote-prod)"
+        required: true
+        type: choice
+        options:
+          - promote-uat
+          - promote-prod
+      stable_tag:
+        description: "The stable Docker tag to promote"
+        required: false
+        default: "stabilisssssimo"
+
+jobs:
+  orchestrator:
+    name: Invoke OctoPus Workflow
+    uses: .github/workflows/ci-cd-paflow/orchestrator.yml
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      action: ${{ inputs.action }}
+      stable_tag: ${{ inputs.stable_tag }}
