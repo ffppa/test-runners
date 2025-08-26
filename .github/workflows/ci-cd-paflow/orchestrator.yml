@@ -1,0 +1,50 @@
+name: "Orchestrator Workflow"
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to execute (promote-uat or promote-prod)"
+        required: true
+        type: choice
+        options:
+          - promote-uat
+          - promote-prod
+      stable_tag:
+        description: "Stable Docker tag to be promoted"
+        required: false
+        default: "stable"
+
+jobs:
+  build-pr:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Build PR Docker Image
+    uses: ./global/build-flow/build-pr.yml
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      docker_context_path: "./" # TODO Examples.
+      docker_registry: "ghcr.io"
+      pr_number: ${{ github.event.number }}
+
+  build-main:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    name: Build Stable Docker Image for Main
+    uses: ./global/build-flow/build-main.yml
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      docker_context_path: "./" # TODO Examples.
+
+  promote:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    name: Promote Docker Image to the Environment
+    uses: ./global/promote/promote-to-environment.yml
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
+      stable_tag: ${{ github.event.inputs.stable_tag }}
