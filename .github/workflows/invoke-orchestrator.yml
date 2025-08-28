@@ -23,11 +23,15 @@ on:
 
 jobs:
   orchestrator:
-    name: Invoke OctoPus Workflow
-    environment: test
+    name: Invoke Orchestrator Workflow
     runs-on: ubuntu-latest
-    uses: .github/workflows/ci-cd-paflow/orchestrator.yml
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      action: ${{ inputs.action }}
-      stable_tag: ${{ inputs.stable_tag }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Call Reusable Orchestrator Workflow
+        uses: ./.github/workflows/ci-cd-paflow/orchestrator.yml
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          action: ${{ inputs.action }}
+          stable_tag: ${{ inputs.stable_tag }}
