@@ -12,13 +12,11 @@ on:
       action:
         description: "Action to execute (promote-uat or promote-prod)"
         required: true
-        type: choice
-        options:
-          - promote-uat
-          - promote-prod
+        type: string
       stable_tag:
         description: "Stable Docker tag to be promoted"
         required: false
+        type: string
         default: "stable"
 
 permissions:
@@ -29,26 +27,44 @@ jobs:
   build-pr:
     if: ${{ github.event_name == 'pull_request' }}
     name: Build PR Docker Image
-    uses: ./ci-cd-paflow/build-flow/build-pr.yml
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      docker_context_path: "./" # TODO Examples.
-      docker_registry: "ghcr.io"
-      pr_number: ${{ github.event.number }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Build PR Job
+        uses: ./ci-cd-paflow/build-flow/build-pr.yml
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_context_path: "./"
+          docker_registry: "ghcr.io"
+          pr_number: ${{ github.event.number }}
 
   build-main:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Build Stable Docker Image for Main
-    uses: ./ci-cd-paflow/build-flow/build-main.yml
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      docker_context_path: "./" # TODO Examples.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Build Main Job
+        uses: ./ci-cd-paflow/build-flow/build-main.yml
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          docker_context_path: "./"
 
   promote:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     name: Promote Docker Image to the Environment
-    uses: ./ci-cd-paflow/promote/promote-to-environment.yml
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
-      stable_tag: ${{ github.event.inputs.stable_tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Promote Job
+        uses: ./ci-cd-paflow/promote/promote-to-environment.yml
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
+          stable_tag: ${{ github.event.inputs.stable_tag }}
