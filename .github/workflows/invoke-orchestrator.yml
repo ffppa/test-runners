@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build PR Job
-        uses: ./ci-cd-paflow/build-flow
+        uses: ./.github/ci-cd-paflow/build-flow
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_context_path: "./"
@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Main Job
-        uses: ./ci-cd-paflow/build-flow
+        uses: ./.github/ci-cd-paflow/build-flow
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           docker_context_path: "./"
@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Promote Job
-        uses: ./ci-cd-paflow/promote
+        uses: ./.github/ci-cd-paflow/promote
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
