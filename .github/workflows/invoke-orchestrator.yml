@@ -34,6 +34,10 @@ on:
         required: false
         default: "stable"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build-pr:
     if: ${{ github.event_name == 'pull_request' }}
