@@ -21,11 +21,21 @@ on:
         required: false
         default: "stabilisssssimo"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   orchestrator:
     name: Invoke Orchestrator Workflow
-    uses: .github/workflows/ci-cd-paflow/orchestrator.yml
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      action: ${{ inputs.action }}
-      stable_tag: ${{ inputs.stable_tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Call Reusable Orchestrator Workflow
+        uses: ./.github/workflows/ci-cd-paflow/orchestrator.yml
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          action: ${{ inputs.action }}
+          stable_tag: ${{ inputs.stable_tag }}
