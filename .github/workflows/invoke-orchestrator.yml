@@ -20,19 +20,6 @@ on:
         description: "Stable Docker tag to be promoted"
         required: false
         default: "stable"
-  workflow_call:
-    inputs:
-      action:
-        description: "Action to execute (promote-uat or promote-prod)"
-        required: true
-        type: choice
-        options:
-          - promote-uat
-          - promote-prod
-      stable_tag:
-        description: "Stable Docker tag to be promoted"
-        required: false
-        default: "stable"
 
 permissions:
   contents: read
