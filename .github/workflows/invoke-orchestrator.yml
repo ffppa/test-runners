@@ -27,44 +27,26 @@ jobs:
   build-pr:
     if: ${{ github.event_name == 'pull_request' }}
     name: Build PR Docker Image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Build PR Job
-        uses: ./.github/ci-cd-paflow/build-flow
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          docker_context_path: "./"
-          docker_registry: "ghcr.io"
-          pr_number: ${{ github.event.number }}
+    uses: ./.github/ci-cd-paflow/build-flow
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      docker_context_path: "./"
+      docker_registry: "ghcr.io"
+      pr_number: ${{ github.event.number }}
 
   build-main:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Build Stable Docker Image for Main
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Build Main Job
-        uses: ./.github/ci-cd-paflow/build-flow
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          docker_context_path: "./"
+    uses: ./.github/ci-cd-paflow/build-flow
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      docker_context_path: "./"
 
   promote:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     name: Promote Docker Image to the Environment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Promote Job
-        uses: ./.github/ci-cd-paflow/promote
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
-          stable_tag: ${{ github.event.inputs.stable_tag }}
+    uses: ./.github/ci-cd-paflow/promote
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
+      stable_tag: ${{ github.event.inputs.stable_tag }}
