@@ -25,6 +25,7 @@ jobs:
   orchestrator:
     name: Invoke OctoPus Workflow
     environment: test
+    runs-on: ubuntu-latest
     uses: .github/workflows/ci-cd-paflow/orchestrator.yml
     with:
       github_token: ${{ secrets.GITHUB_TOKEN }}
