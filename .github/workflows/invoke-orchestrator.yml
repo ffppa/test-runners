@@ -29,7 +29,6 @@ jobs:
     name: Build PR Docker Image
     uses: ./.github/ci-cd-paflow/build-flow
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
       docker_context_path: "./"
       docker_registry: "ghcr.io"
       pr_number: ${{ github.event.number }}
@@ -39,7 +38,6 @@ jobs:
     name: Build Stable Docker Image for Main
     uses: ./.github/ci-cd-paflow/build-flow
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
       docker_context_path: "./"
 
   promote:
@@ -47,6 +45,5 @@ jobs:
     name: Promote Docker Image to the Environment
     uses: ./.github/ci-cd-paflow/promote
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
       environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
       stable_tag: ${{ github.event.inputs.stable_tag }}
