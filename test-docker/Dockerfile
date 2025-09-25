@@ -1,5 +1,6 @@
 FROM golang:1.20-alpine
 
+# Labels
 LABEL version="2.3.1"
 LABEL description="Dockerfile di test per pipeline CI/CD."
 
