@@ -45,7 +45,7 @@ jobs:
   promote:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     name: Promote Docker Image to the Environment
-    uses: pagopa/eng-github-actions-iac-template/.github/workflows/promote-to-environment.yml@PAYMCLOUD-480-new-workflow-deploy
+    uses: pagopa/eng-github-actions-iac-template/.github/workflows/promote.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
       github_token: ${{ github.token }}
       environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
