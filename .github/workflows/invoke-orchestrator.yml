@@ -29,7 +29,7 @@ jobs:
     name: Build PR Docker Image
     uses: pagopa/eng-github-actions-iac-template/.github/workflows/build-pr.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      github_token: ${{ github.token }}
       docker_context_path: "./"
       docker_registry: "ghcr.io"
       pr_number: ${{ github.event.number }}
@@ -39,7 +39,7 @@ jobs:
     name: Build Stable Docker Image for Main
     uses: pagopa/eng-github-actions-iac-template/.github/workflows/build-main.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      github_token: ${{ github.token }}
       docker_context_path: "./"
 
   promote:
@@ -47,6 +47,6 @@ jobs:
     name: Promote Docker Image to the Environment
     uses: pagopa/eng-github-actions-iac-template/.github/workflows/promote-to-environment.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      github_token: ${{ github.token }}
       environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
       stable_tag: ${{ github.event.inputs.stable_tag }}
