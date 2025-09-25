@@ -27,7 +27,7 @@ jobs:
   build-pr:
     if: ${{ github.event_name == 'pull_request' }}
     name: Build PR Docker Image
-    uses: pagopa/eng-github-actions-iac-template/.github/workflows/build-pr.yml@PAYMCLOUD-480-new-workflow-deploy
+    uses: pagopa/eng-github-actions-iac-template/global/ci-cd-paflow/build-pr.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
       github_token: ${{ github.token }}
       docker_context_path: "./"
@@ -37,7 +37,7 @@ jobs:
   build-main:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Build Stable Docker Image for Main
-    uses: pagopa/eng-github-actions-iac-template/.github/workflows/build-main.yml@PAYMCLOUD-480-new-workflow-deploy
+    uses: pagopa/eng-github-actions-iac-template/global/ci-cd-paflow/build-main.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
       github_token: ${{ github.token }}
       docker_context_path: "./"
@@ -45,7 +45,7 @@ jobs:
   promote:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     name: Promote Docker Image to the Environment
-    uses: pagopa/eng-github-actions-iac-template/.github/workflows/promote.yml@PAYMCLOUD-480-new-workflow-deploy
+    uses: pagopa/eng-github-actions-iac-template/global/ci-cd-paflow/promote.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
       github_token: ${{ github.token }}
       environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
