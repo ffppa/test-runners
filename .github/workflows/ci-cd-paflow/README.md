@@ -21,7 +21,7 @@ Here’s how to invoke the **Orchestrator Workflow**:
 
 
 ```
-name: Call OctoPussy Workflow
+name: Call Workflow
 
 on:
   pull_request:
