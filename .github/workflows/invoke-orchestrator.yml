@@ -27,8 +27,9 @@ jobs:
   build-pr:
     if: ${{ github.event_name == 'pull_request' }}
     name: Build PR Docker Image
-    uses: ./.github/workflows/ci-cd-paflow/build-flow/action.yml
+    uses: pagopa/eng-github-actions-iac-template/.github/workflows/build-pr.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
       docker_context_path: "./"
       docker_registry: "ghcr.io"
       pr_number: ${{ github.event.number }}
@@ -36,14 +37,16 @@ jobs:
   build-main:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Build Stable Docker Image for Main
-    uses: ./.github/workflows/ci-cd-paflow/build-main/action.yml
+    uses: pagopa/eng-github-actions-iac-template/.github/workflows/build-main.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
       docker_context_path: "./"
 
   promote:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     name: Promote Docker Image to the Environment
-    uses: ./.github/workflows/ci-cd-paflow/promote/action.yml
+    uses: pagopa/eng-github-actions-iac-template/.github/workflows/promote-to-environment.yml@PAYMCLOUD-480-new-workflow-deploy
     with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
       environment: ${{ github.event.inputs.action == 'promote-uat' && 'uat' || 'prod' }}
       stable_tag: ${{ github.event.inputs.stable_tag }}
