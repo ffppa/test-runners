@@ -1,7 +1,8 @@
 FROM golang:1.20-alpine
 
-LABEL version="2.3"
-LABEL description="Dockerfile di test per pipeline CI/CD."
+# Labels and version
+LABEL version="2.3.1"
+LABEL description="Dockerfile di test per pipeline CI/CD"
 
 # Copy the Go file into the Docker container
 COPY src/main.go .
