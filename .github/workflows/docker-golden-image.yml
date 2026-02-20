@@ -36,6 +36,7 @@ jobs:
         uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/build-pr@PAYMCLOUD-480-new-workflow-deploy
         with:
           registry_password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile_path: './test-docker/Dockerfile'
 
   # Build MA images on main
   main-build:
