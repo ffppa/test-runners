@@ -21,10 +21,6 @@ on:
         description: 'Source tag (for promotions) or rollback tag'
         required: false
         default: 'ma-latest'
-      approval_required:
-        description: 'Require approval for production'
-        type: boolean
-        default: true
 
 permissions:
   id-token: write
