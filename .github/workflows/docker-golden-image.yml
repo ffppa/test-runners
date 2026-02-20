@@ -20,7 +20,6 @@ on:
       source_tag:
         description: 'Source tag (for promotions) or rollback tag'
         required: false
-        default: 'ma-latest'
 
 permissions:
   id-token: write
