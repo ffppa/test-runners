@@ -94,16 +94,9 @@ func logRequest(r *http.Request, token string) {
 	url := r.URL.String()    // Get the requested URL
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	// Fancy log output
 	fmt.Printf(`
-===================================================
-🚀 NEW REQUEST RECEIVED
-====================================================
-📅 TIMESTAMP: %s
-🌐 CLIENT IP: %s
-🔍 REQUESTED URL: %s
-🔧 METHOD: %s
-🔐 TOKEN: %s
-====================================================
+===========================================================
+🚀 NEW REQUEST RECEIVED - 📅 TIMESTAMP: %s - 🔐 TOKEN: %s
+===========================================================
 `, timestamp, clientIP, url, method, token)
 }
