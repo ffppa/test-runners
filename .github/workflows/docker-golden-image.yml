@@ -1,5 +1,5 @@
 
-name: Docker GA workflow
+name: CI/CD Pipeline
 
 on:
   pull_request:
@@ -30,49 +30,66 @@ jobs:
   # Build PR images
   pr-build:
     if: github.event_name == 'pull_request'
-    uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/docker-build-pr.yml@PAYMCLOUD-480-new-workflow-deploy
-    secrets:
-      registry_password: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and promote PR image (composite)
+        uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/build-pr@PAYMCLOUD-480-new-workflow-deploy
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
 
   # Build MA images on main
   main-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/docker-build-main.yml@PAYMCLOUD-480-new-workflow-deploy
-    secrets:
-      registry_password: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and promote MA image (composite)
+        uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/build-and-promote-ma@PAYMCLOUD-480-new-workflow-deploy
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
 
   # Manual promotions and rollbacks
   promote-uat:
     if: github.event_name == 'workflow_dispatch' && inputs.action == 'promote-to-uat'
-    uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/promote-to-uat.yml@PAYMCLOUD-480-new-workflow-deploy
-    secrets:
-      registry_password: ${{ secrets.GITHUB_TOKEN }}
-    with:
-      source_tag: ${{ inputs.source_tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Promote to UAT (composite)
+        uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/promote-to-uat@PAYMCLOUD-480-new-workflow-deploy
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          source_tag: ${{ inputs.source_tag }}
 
   promote-production:
     if: github.event_name == 'workflow_dispatch' && inputs.action == 'promote-to-production'
-    uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/promote-to-prod.yml@PAYMCLOUD-480-new-workflow-deploy
-    secrets:
-      registry_password: ${{ secrets.GITHUB_TOKEN }}
-    with:
-      source_tag: ${{ inputs.source_tag }}
-      approval_required: ${{ inputs.approval_required }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production-approval
+    steps:
+      - name: Promote to Production (composite)
+        uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/promote-to-prod@PAYMCLOUD-480-new-workflow-deploy
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          source_tag: ${{ inputs.source_tag }}
 
   rollback-uat:
     if: github.event_name == 'workflow_dispatch' && inputs.action == 'rollback-uat'
-    uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/rollback.yml@PAYMCLOUD-480-new-workflow-deploy
-    secrets:
-      registry_password: ${{ secrets.GITHUB_TOKEN }}
-    with:
-      environment: 'uat'
-      rollback_tag: ${{ inputs.source_tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rollback UAT (composite)
+        uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/rollback@PAYMCLOUD-480-new-workflow-deploy
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          environment: 'uat'
+          rollback_tag: ${{ inputs.source_tag }}
 
   rollback-production:
     if: github.event_name == 'workflow_dispatch' && inputs.action == 'rollback-production'
-    uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/rollback.yml@PAYMCLOUD-480-new-workflow-deploy
-    secrets:
-      registry_password: ${{ secrets.GITHUB_TOKEN }}
-    with:
-      environment: 'production'
-      rollback_tag: ${{ inputs.source_tag }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production-approval
+    steps:
+      - name: Rollback Production (composite)
+        uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/rollback@PAYMCLOUD-480-new-workflow-deploy
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          environment: 'production'
+          rollback_tag: ${{ inputs.source_tag }}
