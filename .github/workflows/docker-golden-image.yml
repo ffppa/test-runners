@@ -37,6 +37,7 @@ jobs:
         with:
           registry_password: ${{ secrets.GITHUB_TOKEN }}
           dockerfile_path: './test-docker/Dockerfile'
+          docker_context: './test-docker'
 
   # Build MA images on main
   main-build:
@@ -47,6 +48,8 @@ jobs:
         uses: pagopa/eng-github-actions-iac-template/global/docker-golden-image-workflows/build-and-promote-ma@PAYMCLOUD-480-new-workflow-deploy
         with:
           registry_password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile_path: './test-docker/Dockerfile'
+          docker_context: './test-docker'
 
   # Manual promotions and rollbacks
   promote-uat:
