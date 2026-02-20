@@ -30,7 +30,8 @@ permissions:
   id-token: write
   contents: read
   packages: write
-  pull-requests: read
+  pull-requests: write
+  issues: write
 
 jobs:
   # Build PR images
