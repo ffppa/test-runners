@@ -26,6 +26,12 @@ on:
         type: boolean
         default: true
 
+permissions:
+  id-token: write
+  contents: read
+  packages: write
+  pull-requests: read
+
 jobs:
   # Build PR images
   pr-build:
