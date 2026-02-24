@@ -1,7 +1,7 @@
 FROM golang:1.20-alpine
 
 # Labels and version
-LABEL version="2.2.0"
+LABEL version="2.2.1"
 LABEL name="mock-ap"
 LABEL description="Dockerfile di test per pipeline CI/CD"
 
